@@ -1,0 +1,149 @@
+# documentation : http://mapproxy.github.io/mapproxy/
+---
+
+globals:
+
+  image:
+    resampling_method: bicubic
+    formats:
+      image/jpeg:
+        encoding_options:
+          jpeg_quality: 80
+
+  cache:
+    meta_size: [1, 1]
+    meta_buffer: 0
+    base_dir: ../cache_data
+    lock_dir: ../cache_data/locks
+
+  srs:
+    proj_data_dir: /usr/share/proj
+
+  http:
+    manage_cookies: false
+    hide_error_details: true
+
+  tiles:
+
+
+sources:
+
+  HR.ORTHOIMAGERY.ORTHOPHOTO-source:
+    type: tile
+    url: https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=HR.ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&TILEMATRIXSET=PM&TILEMATRIX=%(z)s&TILEROW=%(y)s&TILECOL=%(x)s&FORMAT=image/jpeg
+    transparent: false
+    grid:
+      PM
+
+  ORTHOIMAGERY.ORTHOPHOTOS.IRC-source:
+    type: tile
+    url: https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=ORTHOIMAGERY.ORTHOPHOTOS.IRC&STYLE=normal&TILEMATRIXSET=PM&TILEMATRIX=%(z)s&TILEROW=%(y)s&TILECOL=%(x)s&FORMAT=image/jpeg
+    transparent: false
+    grid:
+      PM
+
+  ORTHOIMAGERY.ORTHOPHOTOS.1950-1965-source:
+    type: tile
+    url: https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=ORTHOIMAGERY.ORTHOPHOTOS.1950-1965&STYLE=BDORTHOHISTORIQUE&TILEMATRIXSET=PM&TILEMATRIX=%(z)s&TILEROW=%(y)s&TILECOL=%(x)s&FORMAT=image/png
+    transparent: false
+    grid:
+      PM
+
+caches:
+
+  HR.ORTHOIMAGERY.ORTHOPHOTO-cache:
+    format: mixed
+    sources: [HR.ORTHOIMAGERY.ORTHOPHOTO-source]
+    request_format: image/png
+    grids: [PM]
+
+  ORTHOIMAGERY.ORTHOPHOTOS.IRC-cache:
+    format: mixed
+    sources: [ORTHOIMAGERY.ORTHOPHOTOS.IRC-source]
+    request_format: image/png
+    grids: [PM]
+
+  ORTHOIMAGERY.ORTHOPHOTOS.1950-1965-cache:
+    format: mixed
+    sources: [ORTHOIMAGERY.ORTHOPHOTOS.1950-1965-source]
+    request_format: image/png
+    grids: [PM]
+
+
+layers:
+
+  - name: HR.ORTHOIMAGERY.ORTHOPHOTO
+    title: Ortho 20 cm
+    sources: [HR.ORTHOIMAGERY.ORTHOPHOTO-cache]
+    md:
+      abstract: >
+        Le produit BD ORTHO® V3 est une collection de mosaïque
+        d'orthophotographies numériques en couleurs ou en Infra Rouge couleurs,
+        rectifiées dans la projection adaptée au territoire couvert.
+        La BD ORTHO® V3 se compose d'images numériques
+        (sans habillage ni surcharge) et d'indications de géoréférencement.
+        Le contenu informationnel permet localement une utilisation
+        jusqu'au 1 :2,000ième pour mettre en valeur le territoire,
+        enrichir la visualisation des données et des projets.
+
+  - name: ORTHOIMAGERY.ORTHOPHOTOS.IRC
+    title: BDORTHO en infrarouge fausses couleurs
+    sources: [ORTHOIMAGERY.ORTHOPHOTOS.IRC-cache]
+    md:
+      abstract: BDORTHO en infrarouge fausses couleurs
+
+  - name: ORTHOIMAGERY.ORTHOPHOTOS.1950-1965
+    title: Photographies aériennes historiques 1950-1965
+    sources: [ORTHOIMAGERY.ORTHOPHOTOS.1950-1965-cache]
+    md:
+      abstract: >
+        Couverture en photographies aériennes de la France des années 50,
+        telle qu'elle se présentait avant les grands aménagements des années 60.
+        Cette couverture a été réalisée à partir des photographies aériennes
+        historiques numérisées par l'IGN. Elle est disponible sur la
+        France métropolitaine, les départements et régions d'Outre-Mer
+        (la Guyane n'est que partiellement couverte) et les collectivités
+        d'Outre-Mer sauf la Polynésie française. Les photographies sont
+        orthorectifiées, c'est-à-dire corrigées des déformations dues à la
+        prise de vue et au relief du terrain, et assemblées pour fournir une
+        visualisation continue superposable avec le Référentiel
+        à Grande Echelle (RGE®) ou les cartes.
+
+
+services:
+  demo:
+  tms:
+    # origin for /tiles service
+    origin: 'nw'
+  kml:
+  wmts:
+  wms:
+    attribution:
+    md:
+      title: Orthophotographies
+      abstract: >
+        Photographies aériennes et satellite
+      online_resource: http://cms.geobretagne.fr/
+      contact:
+        person: GeoBretagne team
+        position: network service administrator
+        organization: GeoBretagne
+        address: 10 rue Maurice Fabre
+        city: RENNES
+        postcode: 35065
+        country: France
+        phone: +33(0)299334556
+        fax: +33(0)299334556
+        email: administrator@geobretagne.fr
+      access_constraints: None
+      fees: None
+    srs: ['EPSG:4326', 'EPSG:2154', 'EPSG:3857', 'EPSG:3948']
+    image_formats: ['image/png','image/jpeg']
+    on_source_errors: raise
+    max_output_pixels: [4000, 4000]
+    versions: ['1.1.1', '1.3.0']
+
+
+grids:
+  PM:
+    base: GLOBAL_WEBMERCATOR
