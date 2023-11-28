@@ -51,7 +51,7 @@ et les cartes OpenStreetMap de [GéoBretagne](https://geobretagne.fr) et [DataGr
 
     ./debug
 
-Pointez votre navigateur vers http://127.0.0.1:5000 pour voir la page d'accueil avec la configuration par défaut.
+Pointez votre navigateur vers http://127.0.0.1:5001 pour voir la page d'accueil avec la configuration par défaut.
 
 (screenshot homepage)
 
@@ -67,10 +67,9 @@ Quelques profils sont proposés par défaut, libre à vous d'en rajouter ou de l
 * `geopf` offre les fonds de plan IGN, et plus généralement les plans disponibles par la GéoPlateforme.
 * `photo` offre une sélection d'imageries aériennes et (à venir) satellite
 
-
 | rendu | profil | identifiant | description | fournisseur |
 |---|--------|-----------|-------------|--------|
-|![osm:grey](https://tile.geobretagne.fr/osm/tms/osm:grey/EPSG3857/16/64287/85957.png)|`osm`|`osm:grey` |niveau de gris pour une meilleure lecture des données |GéoBretagne|
+|![osm:grey](https://tile.geobretagne.fr/osm/tms/osm:grey/EPSG3857/16/64287/85957.png)|`osm`|`osm:grey` |niveau de gris pour une meilleure lecture des données |DataGrandEst|
 |![osm:default](https://tile.geobretagne.fr/osm/tms/osm:default/EPSG3857/16/64287/85957.png)|`osm`|`osm:default`|peu coloré|GéoBretagne|
 |![osm:google](https://tile.geobretagne.fr/osm/tms/osm:google/EPSG3857/16/64287/85957.png)|`osm`|`osm:google`|ressemble à google maps, sans maisons|GéoBretagne|
 |![osm:bing](https://tile.geobretagne.fr/osm/tms/osm:bing/EPSG3857/16/64287/85957.png)|`osm`|`osm:bing`|ressemble à bing maps, avec maisons|GéoBretagne|
@@ -81,35 +80,43 @@ Quelques profils sont proposés par défaut, libre à vous d'en rajouter ou de l
 |![ORTHOIMAGERY.ORTHOPHOTOS.1950-1965](https://tile.geobretagne.fr/photo/tms/ORTHOIMAGERY.ORTHOPHOTOS.1950-1965/EPSG3857/16/64287/85957.png)|`photo`|`ORTHOIMAGERY.ORTHOPHOTOS.1950-1965`|première campagne photo aérienne intégrale de la France|Géoplateforme
 |![GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2](https://tile.geobretagne.fr/geopf/tms/GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2/EPSG3857/16/64287/85957.png)|`geopf`|GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2`|plan fabriqué automatiquement à partir des données IGN|Géoplateforme|
 
+## Activer/désactiver un profil
 
+Le répertoire `profiles-enabled` contient les profils en production. Un profil `toto.yaml` crée automatiquement une page `/toto/demo` qui décrit les services de ce profil.
 
+Pour activer/désactiver les profils, il est proposé d'utiliser dans `profiles-enabled` des liens symboliques vers les profils stockés dans `profiles-available`. La prise en compte est immédiate.
 
 ## Les adresses de services
 
 On suppose ici que `sdi-proxy` publie sur https://www.maplateforme.net/, et que le le profil est `osm`. Les points d'entrée des services sont :
 
-### WMS 1.3.0
+### WMS 1.1.1 et 1.3.0
 
 Le `Web Map Service` fournit des cartes pour n'importe quelle emprise. Il est supporté par presque tous les logiciels cartographiques. Cependant est beaucoup plus lent que les services tuilés et ne devrait pas être utilisé pour servir plans et photographies.
 
-* capacités WMS : https://www.maplateforme.net/`osm`/service?SERVICE=WMS&REQUEST=GetCapabilities
+* capacités WMS : https://www.maplateforme.net/osm/service?SERVICE=WMS&REQUEST=GetCapabilities
 
-* point d'entrée du service : https://www.maplateforme.net/`osm`/service?
+* point d'entrée du service : https://www.maplateforme.net/osm/service?
 
 ### WMTS 1.0.0
 
 Le `Web Map Tiled Service` fournit des cartes selon des emprises décrites dans une grille, ce qui permet de les générer à l'avance. Il est beaucoup plus rapide que `WMS` mais demande au client de connaitre la grille de tuilage.
 
-* capacités WMS : https://www.maplateforme.net/`osm`/service?SERVICE=WMTS&REQUEST=GetCapabilities
+* capacités WMS : https://www.maplateforme.net/osm/service?SERVICE=WMTS&REQUEST=GetCapabilities
 
-* point d'entrée du service : https://www.maplateforme.net/`osm`/service?
+* point d'entrée du service : https://www.maplateforme.net/osm/service?
 
 ### TMS 1.0.0
 
 Le `Tiled Map Service` est similaire au WMTS avec un formalisme plus simple.
 
-* point d'entrée du service : https://www.maplateforme.net/`osm`/tms/1.0.0
+* point d'entrée du service : https://www.maplateforme.net/osm/tms/1.0.0
 
+
+## Exemples en production
+
+* GéoBretagne : https://tile.geobretagne.fr/
+* ...
 
 # Configuration de quelques clients
 
@@ -117,7 +124,41 @@ Le `Tiled Map Service` est similaire au WMTS avec un formalisme plus simple.
 
 [Mviewer](https://mviewer.netlify.app/fr/) est un visualiseur cartographique léger et entièrement personnalisable.
 
+Pour ajouter un  `baselayer` :
+
+```xml
+<baselayer
+    id="photo_actuelle" 
+    type="WMTS"
+    url="https://tile.geobretagne.fr/photo/service"
+    layers="HR.ORTHOIMAGERY.ORTHOPHOTO"
+    matrixset="PM"
+    format="image/png"
+    style="default"
+    fromcapacity="false"
+    title="Ortho 20 cm"
+    visible="false"
+    thumbgallery="https://tile.geobretagne.fr/photo/tms/HR.ORTHOIMAGERY.ORTHOPHOTO/EPSG3857/16/64287/85957.png"
+    label="Ortho actuelle IGN"
+    attribution="IGN"
+/>
+```
+
 ## Mapfishapp
+
+Mapfishapp est le visualiseur historique de geOrchestra. Il utilise des contextes OGC:WMC qui ne permettent d'enregistrer que des flux WMS. Pour bénéficier du cache, utiliser les options vendeur suivantes :
+```xml
+<Extension>
+    <ol:maxExtent xmlns:ol="http://openlayers.org/context" minx="-20037508.342789244" miny="-20037508.342789244" maxx="20037508.342789244" maxy="20037508.342789244" />
+    <ol:transparent xmlns:ol="http://openlayers.org/context">false</ol:transparent>
+    <ol:numZoomLevels xmlns:ol="http://openlayers.org/context">22</ol:numZoomLevels>
+    <ol:units xmlns:ol="http://openlayers.org/context">m</ol:units>
+    <ol:isBaseLayer xmlns:ol="http://openlayers.org/context">false</ol:isBaseLayer>
+    <ol:tileSize xmlns:ol="http://openlayers.org/context" width="256" height="256" />
+    <ol:singleTile xmlns:ol="http://openlayers.org/context">false</ol:singleTile>
+    <ol:gutter xmlns:ol="http://openlayers.org/context">0</ol:gutter>
+</Extension>
+```
 
 ## Mapstore
 
@@ -126,6 +167,23 @@ Le `Tiled Map Service` est similaire au WMTS avec un formalisme plus simple.
 ## Leaflet
 
 ## QGIS
+
+### Avec WMTS
+
+* `Couche`/`ajouter une couche`/`ajouter une couche WMS/WMTS`
+* `Nouveau` : préciser l'adresse complète des capacités WMTS, par exemple https://tile.geobretagne.fr/photo/service?SERVICE=WMTS&REQUEST=GetCapabilities
+
+La connexion au service présente alors toutes les données disponibles.
+
+[!CAUTION] 
+Si vous saisissez l'adresse partielle https://tile.geobretagne.fr/photo/service, QGIS suppose que WMS est demandé : la performance sera médiocre.
+
+### Avec XYZ
+
+L'adresse du service dépend de la donnée.
+
+* `Couche`/`ajouter une couche`/`ajouter une couche XYZ`
+* `Connexion` : préciser l'adresse XYZ, par exemple https://tile.geobretagne.fr/photo/wmts/HR.ORTHOIMAGERY.ORTHOPHOTO/PM/{z}/{x}/{y}.png
 
 # Production
 
@@ -174,6 +232,34 @@ Se référer à la documentation https://mapproxy.github.io/mapproxy/deployment.
     
     [Install]
     WantedBy=multi-user.target
+
+
+
+# Préremplissage du cache
+
+MapProxy embarque l'utilitaire [mapproxy-seed](https://mapproxy.github.io/mapproxy/seed.html) pour gérer la prégénération et l'expiration des tuiles stockées en cache.
+
+[!TIP]
+Il n'est généralement pas utile de prégénérer les tuiles issues de WMTS (Géoplateforme par exemple) : les performances sont satisfaisantes dès le début.
+
+Pour les tuiles issues de WMS lents, il est conseillé de prégénérer jusqu'au niveau 13 (données peu utilisées) voire 15 (données souvent utilisées).
+
+sdi-proxy propose un remplissage optionnel par région française afin de ne pas surcharger le cache avec des tuiles peu utilisées. Les contours de toutes les régions sont décrits dans `profiles-available/france.geojson`. Le fichier de seed `profiles-available/osm.seed` comporte un filtre sur le code région. Modifier ce code pour cibler une région.
+
+    coverages:
+      region1:
+        datasource: france.geojson
+        where: code = '53'
+        srs: EPSG:4326
+
+Pour lancer la prégénération, depuis la racine du projet :
+
+    source ./venv/bin/activate
+    cd profiles-available
+    mapproxy-seed -f osm.yaml -s osm.seed
+
+[!CAUTION]
+Par respect pour les fournisseurs, ne prégénérez pas les données que vous n'avez pas l'intention d'utiliser. Supprimez-les des fichiers `.seed` avant de lancer la prégénération.
 
 # Crédits
 

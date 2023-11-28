@@ -2,18 +2,18 @@
 seeds:
   osm-popular:
     caches: [imposm3-google-cache, imposm3-default-cache, imposm3-roads-cache, datagrandest-grey-cache]
-    coverages: [bretagne]
+    coverages: [region1]
     levels:
       to: 15
 
   osm:
     caches: [datagrandest-faded-cache, datagrandest-naturaliste-cache]
-    coverages: [bretagne]
+    coverages: [region1]
     levels:
       to: 13
 
 coverages:
-  bretagne:
+  region1:
     datasource: france.geojson
     where: code = '53'
     srs: EPSG:4326
